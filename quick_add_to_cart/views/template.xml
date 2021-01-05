@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="laze_customize.products_add_to_cart" inherit_id="laze_customize.product_items" active="False" customize_show="False" name="Add to Cart" />
+    <template id="website_sale.products_add_to_cart" inherit_id="website_sale.products_item" active="False" customize_show="False" name="Add to Cart"/>
+
+    <template id="products_add_to_cart" inherit_id="laze_customize.product_items" active="True" customize_show="True" name="Add to Cart" >
+        <xpath expr="//div[hasclass('pro-action')]/div[hasclass('pro-icons')]" position="inside">
+            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+            <t t-if="product_variant_id">
+                <input name="product_id" t-att-value="product.product_variant_id.id" type="hidden"/>
+                <t t-if="len(product.product_variant_ids) == 1">
+                    <a href="#" role="button" class="btn btn-secondary btn-sm a-submit" aria-label="Shopping cart" title="Shopping cart">
+                        <span class="fa fa-shopping-cart"/>
+                    </a>
+                </t>
+                <t t-if="len(product.product_variant_ids) &gt; 1">
+                    <a role="button" class="btn btn-secondary btn-sm" t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" aria-label="Shopping cart" title="Shopping cart">
+                        <span class="fa fa-shopping-cart"/>
+                    </a>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Ajax Add to Cart on Shop Page -->
+    <template id="ajax_products_add_to_cart" name="Ajax Add to cart" inherit_id="quick_add_to_cart.products_add_to_cart" customize_show="True" active="False">
+        <xpath expr="//t[@t-if='product_variant_id']" position="replace">
+            <t t-if="request.website.viewref('quick_add_to_cart.products_add_to_cart').active">
+                <t t-if="product_variant_id">
+                    <t t-if="product.product_variant_count > 1">
+                        <a t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" role="button" class="btn btn-secondary btn-sm" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="fa fa-shopping-cart"/>
+                        </a>
+                    </t>
+                    <t t-else="">
+                        <input type="hidden" name="product-id" t-att-data-product-id="product_variant_id"/>
+                        <a role="button" class="btn btn-secondary btn-sm js_add_cart" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="fa fa-shopping-cart"/>
+                        </a>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Add to Cart Button Color on Shop Page -->
+    <template id="ajax_cart_button_color" name="Cart Button Color" inherit_id="quick_add_to_cart.ajax_products_add_to_cart" customize_show="True" active="False">
+        <xpath expr="//t[@t-if='product_variant_id']" position="replace">
+            <t t-if="request.website.viewref('quick_add_to_cart.products_add_to_cart').active">
+                <t t-if="product_variant_id">
+                    <t t-if="product.product_variant_count > 1">
+                        <a t-att-href="keep('/shop/product/%s' % slug(product), page=(None))" role="button" t-attf-class="btn btn-secondary btn-sm #{'as-color ' if product in [line.product_id.product_tmpl_id for line in website_sale_order.website_order_line] else ''}" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="fa fa-shopping-cart"/>
+                        </a>
+                    </t>
+                    <t t-else="">
+                        <input type="hidden" name="product-id" t-att-data-product-id="product_variant_id"/>
+                        <a role="button" t-attf-class="btn btn-secondary btn-sm js_add_cart #{'as-color ' if product in [line.product_id.product_tmpl_id for line in website_sale_order.website_order_line] else ''}" aria-label="Shopping cart" title="Shopping cart">
+                            <span class="fa fa-shopping-cart"/>
+                        </a>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>
